@@ -9,7 +9,8 @@ class RespClient {
   final Queue<Completer> _pendingResponses = Queue();
   bool _isProccessingResponse = false;
 
-  RespClient(this._connection) : _streamReader = StreamReader(_connection.inputStream);
+  RespClient(this._connection)
+      : _streamReader = StreamReader(_connection.inputStream);
 
   ///
   /// Writes a RESP type to the server using the
@@ -25,11 +26,26 @@ class RespClient {
     return completer.future;
   }
 
-  Stream<RespType> subscribe() {
-    final controller = StreamController<RespType>();
-    deserializeRespType(_streamReader).then((response) {
-      controller.add(response);
-    });
+  Stream<RespType> subscribe(RespType data) {
+    final controller = StreamController<RespType>(sync: true);
+    controller.onCancel = () {
+      controller.close();
+    };
+    bool onError(error, stackTrace) {
+      controller.addError(error, stackTrace);
+      controller.close();
+      return false;
+    }
+    _connection.outputSink.add(data.serialize());
+    Future.doWhile(() async {
+      if (controller.isClosed) {
+        return false;
+      }
+      return deserializeRespType(_streamReader).then((response) {
+        controller.add(response);
+        return !controller.isClosed;
+      }).catchError(onError);
+    }).catchError(onError);
     return controller.stream;
   }
 

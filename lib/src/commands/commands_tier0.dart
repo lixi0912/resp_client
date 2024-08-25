@@ -19,4 +19,8 @@ class RespCommandsTier0 {
   Future<RespType> execute(List<Object?> elements) async {
     return client.writeType(RespArray(elements.map((e) => RespBulkString(e?.toString())).toList(growable: false)));
   }
+
+  Stream<RespType> executeStream(List<Object?> elements) {
+    return client.subscribe(RespArray(elements.map((e) => RespBulkString(e?.toString())).toList(growable: false)));
+  }
 }

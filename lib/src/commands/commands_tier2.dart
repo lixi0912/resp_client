@@ -780,4 +780,30 @@ class RespCommandsTier2 {
   Future<void> unsubscribe(Iterable<String> channels) async {
     await tier1.unsubscribe(channels);
   }
+
+
+  /// https://redis.io/commands/config/
+  Future<bool> config(List<String> commands) async {
+    return (await tier1.config(commands)).toSimpleString().payload == 'OK';
+  }
+
+  /// https://redis.io/docs/latest/develop/interact/pubsub/
+  Stream<dynamic> psubscribe(List<String> patterns) {
+    return tier1.psubscribe(patterns).map((response) {
+      final result = response
+          .toArray()
+          .payload;
+      if (result != null) {
+        return result.map((e) => e.payload).toList(growable: false);
+      }
+      return [];
+    });
+  }
+
+  Future<dynamic> punsubscribe(Iterable<String> channels) async {
+    final result = (await tier1.punsubscribe(channels));
+
+    return result.payload;
+  }
+
 }

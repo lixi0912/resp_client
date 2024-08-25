@@ -471,4 +471,25 @@ class RespCommandsTier1 {
       'UNWATCH',
     ]);
   }
+
+  Future<RespType> config(List<String> commands) async {
+    return tier0.execute([
+      'CONFIG',
+      ...commands,
+    ]);
+  }
+
+  Stream<RespType> psubscribe(List<String> channels) {
+    return tier0.executeStream([
+      'PSUBSCRIBE',
+      ...channels,
+    ]);
+  }
+
+  Future<RespType> punsubscribe(Iterable<String> channels) async {
+    return tier0.execute([
+      'PUNSUBSCRIBE',
+      ...channels,
+    ]);
+  }
 }

@@ -142,7 +142,7 @@ class RespBulkString extends RespType<String?> {
     final pl = payload;
     if (pl != null) {
       final length = utf8.encode(pl).length;
-      return utf8.encode('$prefix${length}$suffix$pl$suffix');
+      return utf8.encode('$prefix$length$suffix$pl$suffix');
     }
     return nullString;
   }
