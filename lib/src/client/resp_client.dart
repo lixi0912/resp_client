@@ -63,4 +63,8 @@ class RespClient {
       }
     }
   }
+
+  Future<void> close() {
+    return _connection.close();
+  }
 }
